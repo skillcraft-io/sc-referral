@@ -1,0 +1,1 @@
+{!! Form::text($input, $metadata,['class' => 'form-control required', 'id' => $input, 'required' => true]) !!}

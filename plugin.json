@@ -1,0 +1,11 @@
+{
+    "id": "skillcraft/referral",
+    "name": "Skillcraft Referral",
+    "namespace": "Skillcraft\\Referral\\",
+    "provider": "Skillcraft\\Referral\\Providers\\ReferralServiceProvider",
+    "author": "William Troiano",
+    "url": "https://github.com/skillcraft-io",
+    "version": "1.0.0",
+    "description": "Add referrals to your project",
+    "require": ["skillcraft/sc-core"]
+}
