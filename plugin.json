@@ -1,5 +1,5 @@
 {
-    "id": "skillcraft/referral",
+    "id": "skillcraft/sc-referral",
     "name": "Skillcraft Referral",
     "namespace": "Skillcraft\\Referral\\",
     "provider": "Skillcraft\\Referral\\Providers\\ReferralServiceProvider",
