@@ -6,6 +6,7 @@
     "author": "William Troiano",
     "url": "https://github.com/skillcraft-io",
     "version": "1.0.0",
+    "minimum_core_version": "7.0.0",
     "description": "Add referrals to your project",
     "require": ["skillcraft/sc-core"]
 }
