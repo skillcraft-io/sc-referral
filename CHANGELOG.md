@@ -2,6 +2,9 @@
 
 All notable changes to the Referralplugin will be documented in this file, from latest change to the oldest.
 
+## [1.0.1] - 2024-01-22
+- [BUG] - Fixed Critical Bug[Issue #2](https://github.com/skillcraft-io/sc-referral/issues/2)
+
 ## [1.0.0] - 2024-01-20
 
 ### Added
