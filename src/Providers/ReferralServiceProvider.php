@@ -80,6 +80,8 @@ class ReferralServiceProvider extends ServiceProvider
                                 'icon' => 'ti ti-sitemap',
                             ]);
                     });
+
+                    DashboardMenu::default();
                 }
             }
         });
