@@ -5,7 +5,7 @@
     "provider": "Skillcraft\\Referral\\Providers\\ReferralServiceProvider",
     "author": "William Troiano",
     "url": "https://github.com/skillcraft-io",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Add referrals to your project",
     "require": ["skillcraft/sc-core"]
 }
