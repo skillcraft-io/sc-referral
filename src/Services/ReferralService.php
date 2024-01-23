@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Skillcraft\Referral\Models\Referral;
 use Illuminate\Support\Facades\Validator;
 use Botble\Base\Events\CreatedContentEvent;
+use Botble\Chart\Supports\Base;
 use Illuminate\Database\Eloquent\Collection;
 use Skillcraft\Referral\Models\ReferralAlias;
 use Illuminate\Validation\ValidationException;
@@ -24,6 +25,8 @@ use Skillcraft\Referral\Models\ReferralTracking;
 use Skillcraft\Referral\Supports\ReferralHookManager;
 use Botble\Support\Http\Requests\Request as BaseRequest;
 use Skillcraft\Referral\Http\Requests\ReferralAliasRequest;
+use Skillcraft\Referral\Supports\Membership\ReferralLimitModule;
+use Skillcraft\Membership\Exceptions\MembershipValidationException;
 
 class ReferralService
 {
@@ -81,12 +84,12 @@ class ReferralService
             return $this->unHookSponsor($user);
         }
 
-        $alias = (new ReferralAlias())
+        $sponsor_alias = (new ReferralAlias())
             ->query()
             ->where('id', $alias_id)
             ->first();
 
-        return $this->createSponsor($user, $alias);
+        return $this->createSponsor($user, $sponsor_alias);
     }
 
 
@@ -132,9 +135,11 @@ class ReferralService
                     ->first()
             );
 
-            $tracking_record->delete();
+            if (!empty($sponsor)) {
+                $tracking_record->delete();
 
-            event(new CreatedContentEvent(REFERRAL_MODULE_SCREEN_NAME, $request, $sponsor));
+                event(new CreatedContentEvent(REFERRAL_MODULE_SCREEN_NAME, $request, $sponsor));
+            }
         }
     }
 
@@ -390,21 +395,23 @@ class ReferralService
         return $alias;
     }
 
-    private function createSponsor(Model $user, ReferralAlias $alias): Model
+    private function createSponsor(Model $user, ReferralAlias $alias): ?Referral
     {
-        $sponsor = (new Referral())->query()->updateOrCreate([
-            'referral_type' => get_class($user),
-            'referral_id'   => $user->id,
-        ], [
-            'sponsor_type'  => $alias->user_type,
-            'sponsor_id'    => $alias->user_id,
-        ]);
+        if ($this->isMembershipValidated($user, $alias->getReferrals()->count())) {
+            $sponsor = (new Referral())->query()->updateOrCreate([
+                'referral_type' => get_class($user),
+                'referral_id'   => $user->id,
+            ], [
+                'sponsor_type'  => $alias->user_type,
+                'sponsor_id'    => $alias->user_id,
+            ]);
 
+            event(new CreatedContentEvent(REFERRAL_MODULE_SCREEN_NAME, request(), $sponsor));
 
+            return $sponsor;
+        }
 
-        event(new CreatedContentEvent(REFERRAL_MODULE_SCREEN_NAME, request(), $sponsor));
-
-        return $sponsor;
+        return null;
     }
 
     private function createAlias(Model $user): Model
@@ -430,5 +437,24 @@ class ReferralService
     private function getAliasLength(): string
     {
         return setting('sc_referral_alias_length', config('plugins.sc-referral.general.alias_length'));
+    }
+
+    /**
+     * @throws Exception
+     * @return void
+     */
+    private function isMembershipValidated(Model $user, int|string $value): bool
+    {
+        try {
+            if (defined('ACTION_HOOK_MEMBERSHIP_MODULE_VALIDATION')) {
+                do_action(ACTION_HOOK_MEMBERSHIP_MODULE_VALIDATION, $user, ReferralLimitModule::class, $value);
+            }
+            return true;
+        } catch (MembershipValidationException $exception) {
+            return false;
+        } catch (Exception $exception) {
+            BaseHelper::logError($exception);
+        }
+        return true;
     }
 }

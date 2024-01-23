@@ -16,6 +16,8 @@ use Skillcraft\Referral\Supports\ReferralHookManager;
 use Botble\Dashboard\Events\RenderingDashboardWidgets;
 use Botble\Dashboard\Supports\DashboardWidgetInstance;
 use Botble\Support\Http\Requests\Request as BaseRequest;
+use Skillcraft\Membership\Supports\MembershipModuleHookManager;
+use Skillcraft\Referral\Supports\Membership\ReferralLimitModule;
 
 class HookServiceProvider extends ServiceProvider
 {
@@ -24,7 +26,7 @@ class HookServiceProvider extends ServiceProvider
         (new ReferralHookManager())->load();
 
         add_filter('core_request_rules', function (array $rules, BaseRequest $request) {
-            
+
             $id = 0;
             if (sizeOf($request->route()->parameters())) {
                 $name = $request->route()->parameterNames()[0];
@@ -89,11 +91,15 @@ class HookServiceProvider extends ServiceProvider
         $this->app['events']->listen(RenderingDashboardWidgets::class, function () {
             add_filter(DASHBOARD_FILTER_ADMIN_LIST, [$this, 'registerDashboardWidgets'], 21, 2);
         });
+
+        if (defined('SKILLCRAFT_MEMBERSHIP_MODULE_SCREEN_NAME')) {
+            MembershipModuleHookManager::registerModuleHooks(ReferralLimitModule::class);
+        }
     }
 
     public function registerDashboardWidgets(array $widgets, Collection $widgetSettings): array
     {
-        if (! Auth::guard()->user()->hasPermission('referral.index')) {
+        if (!Auth::guard()->user()->hasPermission('referral.index')) {
             return $widgets;
         }
 
