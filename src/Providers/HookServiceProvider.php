@@ -2,7 +2,6 @@
 
 namespace Skillcraft\Referral\Providers;
 
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Botble\Base\Facades\Assets;
 use Illuminate\Support\Collection;
@@ -26,13 +25,7 @@ class HookServiceProvider extends ServiceProvider
         (new ReferralHookManager())->load();
 
         add_filter('core_request_rules', function (array $rules, BaseRequest $request) {
-
-            $id = 0;
-            if (sizeOf($request->route()->parameters())) {
-                $name = $request->route()->parameterNames()[0];
-                $id = $request->route()->parameter($name)->getKey();
-            }
-            return (new ReferralService)->addRulesToSupportedForms($rules, $request, $id);
+            return (new ReferralService)->addRulesToSupportedForms($rules, $request);
         }, 100, 2);
 
         add_filter('core_request_attributes', function (array $rules, BaseRequest $request) {

@@ -3,8 +3,10 @@
 namespace Skillcraft\Referral\Services;
 
 use Exception;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Botble\Chart\Supports\Base;
 use Illuminate\Validation\Rule;
 use Botble\Base\Facades\MetaBox;
 use Botble\Table\Columns\Column;
@@ -17,7 +19,6 @@ use Illuminate\Database\Eloquent\Model;
 use Skillcraft\Referral\Models\Referral;
 use Illuminate\Support\Facades\Validator;
 use Botble\Base\Events\CreatedContentEvent;
-use Botble\Chart\Supports\Base;
 use Illuminate\Database\Eloquent\Collection;
 use Skillcraft\Referral\Models\ReferralAlias;
 use Illuminate\Validation\ValidationException;
@@ -193,14 +194,14 @@ class ReferralService
 
     public function addAliasFormMetabox(mixed $priority, mixed $data, string $input = 'referral_alias_wrap'): void
     {
-        if (!empty($data) && is_object($data) && ReferralHookManager::isSupported($data) && $data->exists) {
+        if (!empty($data) && is_object($data) && ReferralHookManager::isSupported($data)) {
             MetaBox::addMetaBox(
                 $input,
                 trans('Alias'),
                 function () use ($input, $data) {
-                    $metadata = $data->getAlias();
+                    $metadata = ($data->exists) ? $data->getAlias() : null;
 
-                    if (!empty($metadata)) {
+                    if ($metadata && !empty($metadata)) {
                         $metadata = $metadata->alias;
                     }
 
@@ -234,7 +235,7 @@ class ReferralService
 
                     $options = ['-' => '-- No Sponsor --'] + $query;
 
-                    $metadata = $data->getSponsor();
+                    $metadata = ($data->exists) ? $data->getSponsor() : null;
 
                     if ($metadata) {
                         $metadata = $metadata->id;
@@ -364,13 +365,34 @@ class ReferralService
         ];
     }
 
-    public function addRulesToSupportedForms(array $rules, BaseRequest $formRequest, int $id)
+    public function addRulesToSupportedForms(array $rules, BaseRequest $formRequest)
     {
+
+        $id = $this->resolveRouteResourceKey($formRequest);
+
         if (ReferralHookManager::isSupportedForm($formRequest)) {
             $rules = array_merge($rules, $this->aliasRules($id));
         }
 
         return $rules;
+    }
+
+    protected function resolveRouteResourceKey(BaseRequest $formRequest): int
+    {
+        $id = 0;
+        if (sizeOf($formRequest->route()->parameters())) {
+            $name = $formRequest->route()->parameterNames()[0];
+            $params = $formRequest->route()->parameters();
+
+            $value = Arr::get($params, $name);
+            if ($value instanceof Model) {
+                $id = $value->getKey();
+            } else {
+                $id = (int) $value;
+            }
+        }
+
+        return $id;
     }
 
 
