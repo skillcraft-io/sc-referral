@@ -2,14 +2,14 @@
 
 namespace Skillcraft\Referral\Http\Controllers;
 
-use Skillcraft\Referral\Models\Referral;
+use Botble\Base\Events\DeletedContentEvent;
 use Botble\Base\Facades\PageTitle;
 use Botble\Base\Http\Controllers\BaseController;
-use Illuminate\Http\Request;
-use Exception;
-use Skillcraft\Referral\Tables\ReferralTable;
-use Botble\Base\Events\DeletedContentEvent;
 use Botble\Base\Http\Responses\BaseHttpResponse;
+use Exception;
+use Illuminate\Http\Request;
+use Skillcraft\Referral\Models\Referral;
+use Skillcraft\Referral\Tables\ReferralTable;
 
 class ReferralController extends BaseController
 {

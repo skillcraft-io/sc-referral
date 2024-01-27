@@ -4,11 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class() extends Migration
-{
+return new class () extends Migration {
     public function up(): void
     {
-        if (!Schema::hasTable('sc_referrals')) {
+        if (! Schema::hasTable('sc_referrals')) {
             Schema::create('sc_referrals', function (Blueprint $table) {
                 $table->id();
                 $table->morphs('sponsor');
@@ -18,7 +17,7 @@ return new class() extends Migration
             });
         }
 
-        if (!Schema::hasTable('sc_referral_aliases')) {
+        if (! Schema::hasTable('sc_referral_aliases')) {
             Schema::create('sc_referral_aliases', function (Blueprint $table) {
                 $table->id();
                 $table->morphs('user');
@@ -27,11 +26,11 @@ return new class() extends Migration
             });
         }
 
-        if (!Schema::hasTable('sc_referral_trackings')) {
+        if (! Schema::hasTable('sc_referral_trackings')) {
             Schema::create('sc_referral_trackings', function (Blueprint $table) {
                 $table->id();
                 $table->morphs('sponsor');
-                $table->ipAddress('ip_address')->index();
+                $table->ipAddress()->index();
                 $table->string('referrer')->nullable();
                 $table->timestamp('expires_at')->nullable();
                 $table->timestamps();

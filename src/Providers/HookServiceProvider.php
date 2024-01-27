@@ -2,21 +2,21 @@
 
 namespace Skillcraft\Referral\Providers;
 
-use Illuminate\Http\Request;
 use Botble\Base\Facades\Assets;
-use Illuminate\Support\Collection;
-use Botble\Table\EloquentDataTable;
-use Illuminate\Support\Facades\Auth;
-use Botble\Table\CollectionDataTable;
-use Illuminate\Database\Eloquent\Model;
 use Botble\Base\Supports\ServiceProvider;
-use Skillcraft\Referral\Services\ReferralService;
-use Skillcraft\Referral\Supports\ReferralHookManager;
 use Botble\Dashboard\Events\RenderingDashboardWidgets;
 use Botble\Dashboard\Supports\DashboardWidgetInstance;
 use Botble\Support\Http\Requests\Request as BaseRequest;
+use Botble\Table\CollectionDataTable;
+use Botble\Table\EloquentDataTable;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Skillcraft\Membership\Supports\MembershipModuleHookManager;
+use Skillcraft\Referral\Services\ReferralService;
 use Skillcraft\Referral\Supports\Membership\ReferralLimitModule;
+use Skillcraft\Referral\Supports\ReferralHookManager;
 
 class HookServiceProvider extends ServiceProvider
 {
@@ -25,30 +25,30 @@ class HookServiceProvider extends ServiceProvider
         (new ReferralHookManager())->load();
 
         add_filter('core_request_rules', function (array $rules, BaseRequest $request) {
-            return (new ReferralService)->addRulesToSupportedForms($rules, $request);
+            return (new ReferralService())->addRulesToSupportedForms($rules, $request);
         }, 100, 2);
 
         add_filter('core_request_attributes', function (array $rules, BaseRequest $request) {
-            return (new ReferralService)->aliasRuleAttributes($rules, $request);
+            return (new ReferralService())->aliasRuleAttributes($rules, $request);
         }, 100, 2);
 
         add_filter(BASE_FILTER_GET_LIST_DATA, function (EloquentDataTable|CollectionDataTable $data, Model|string|null $model) {
-            return (new ReferralService)->addAliasColumnToTable($data, $model);
+            return (new ReferralService())->addAliasColumnToTable($data, $model);
         }, 247, 2);
 
         add_filter(BASE_FILTER_TABLE_HEADINGS, function (array $headings, Model|string|null $model) {
-            return (new ReferralService)->addAliasHeaderToTable($headings, $model);
+            return (new ReferralService())->addAliasHeaderToTable($headings, $model);
         }, 1134, 2);
 
         add_action(ACTION_HOOK_REFERRAL_MIDDLEWARE_RUN, function (Request $request) {
-            (new ReferralService)->processSponsorTracking($request);
+            (new ReferralService())->processSponsorTracking($request);
         }, 1, 1);
 
         add_action(
             BASE_ACTION_META_BOXES,
             function ($priority, $data) {
-                (new ReferralService)->addAliasFormMetabox($priority, $data);
-                (new ReferralService)->addSponsorFormMetabox($priority, $data);
+                (new ReferralService())->addAliasFormMetabox($priority, $data);
+                (new ReferralService())->addSponsorFormMetabox($priority, $data);
             },
             900,
             2
@@ -57,7 +57,7 @@ class HookServiceProvider extends ServiceProvider
         add_action(
             BASE_ACTION_AFTER_CREATE_CONTENT,
             function ($screen, $request, $data) {
-                (new ReferralService)->saveMetaData($screen, $request, $data);
+                (new ReferralService())->saveMetaData($screen, $request, $data);
             },
             1,
             3
@@ -66,7 +66,7 @@ class HookServiceProvider extends ServiceProvider
         add_action(
             BASE_ACTION_AFTER_UPDATE_CONTENT,
             function ($screen, $request, $data) {
-                (new ReferralService)->saveMetaData($screen, $request, $data);
+                (new ReferralService())->saveMetaData($screen, $request, $data);
             },
             1,
             3
@@ -75,7 +75,7 @@ class HookServiceProvider extends ServiceProvider
         add_action(
             BASE_ACTION_AFTER_DELETE_CONTENT,
             function ($screen, $request, $data) {
-                (new ReferralService)->saveMetaData($screen, $request, $data);
+                (new ReferralService())->saveMetaData($screen, $request, $data);
             },
             1,
             3
@@ -92,7 +92,7 @@ class HookServiceProvider extends ServiceProvider
 
     public function registerDashboardWidgets(array $widgets, Collection $widgetSettings): array
     {
-        if (!Auth::guard()->user()->hasPermission('referral.index')) {
+        if (! Auth::guard()->user()->hasPermission('referral.index')) {
             return $widgets;
         }
 

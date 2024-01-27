@@ -3,15 +3,15 @@
 namespace Skillcraft\Referral\Models;
 
 use Botble\Base\Casts\SafeContent;
-use Skillcraft\Core\Models\CoreModel;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use Skillcraft\Core\Models\CoreModel;
 
 /**
  * @method static \Botble\Base\Models\BaseQueryBuilder<static> query()
  */
 class ReferralAlias extends CoreModel
-{    
+{
     protected $table = 'sc_referral_aliases';
 
     protected $fillable = [
@@ -24,7 +24,7 @@ class ReferralAlias extends CoreModel
         'alias' => SafeContent::class,
     ];
 
-    public function scopeHasUser(Builder $query, Model $user):void
+    public function scopeHasUser(Builder $query, Model $user): void
     {
         $query->where(function ($query) use ($user) {
             $query->where('user_id', $user->getKey())
@@ -32,7 +32,7 @@ class ReferralAlias extends CoreModel
         });
     }
 
-    public function scopeIsNotUser(Builder $query, Model $user):void
+    public function scopeIsNotUser(Builder $query, Model $user): void
     {
         $query->where(function ($query) use ($user) {
             $query->where('user_id', '!=', $user->getKey())
