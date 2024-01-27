@@ -2,32 +2,30 @@
 
 namespace Skillcraft\Referral\Services;
 
-use Exception;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Botble\Chart\Supports\Base;
-use Illuminate\Validation\Rule;
-use Botble\Base\Facades\MetaBox;
-use Botble\Table\Columns\Column;
-use Botble\Base\Facades\BaseHelper;
-use Botble\Table\EloquentDataTable;
-use Illuminate\Support\Facades\Auth;
-use Botble\Table\CollectionDataTable;
-use Illuminate\Support\Facades\Route;
-use Illuminate\Database\Eloquent\Model;
-use Skillcraft\Referral\Models\Referral;
-use Illuminate\Support\Facades\Validator;
 use Botble\Base\Events\CreatedContentEvent;
-use Illuminate\Database\Eloquent\Collection;
-use Skillcraft\Referral\Models\ReferralAlias;
-use Illuminate\Validation\ValidationException;
-use Skillcraft\Referral\Models\ReferralTracking;
-use Skillcraft\Referral\Supports\ReferralHookManager;
+use Botble\Base\Facades\BaseHelper;
+use Botble\Base\Facades\MetaBox;
 use Botble\Support\Http\Requests\Request as BaseRequest;
-use Skillcraft\Referral\Http\Requests\ReferralAliasRequest;
-use Skillcraft\Referral\Supports\Membership\ReferralLimitModule;
+use Botble\Table\CollectionDataTable;
+use Botble\Table\Columns\Column;
+use Botble\Table\EloquentDataTable;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Skillcraft\Membership\Exceptions\MembershipValidationException;
+use Skillcraft\Referral\Models\Referral;
+use Skillcraft\Referral\Models\ReferralAlias;
+use Skillcraft\Referral\Models\ReferralTracking;
+use Skillcraft\Referral\Supports\Membership\ReferralLimitModule;
+use Skillcraft\Referral\Supports\ReferralHookManager;
 
 class ReferralService
 {
@@ -45,7 +43,7 @@ class ReferralService
     public function getAlias(Model $user): Model
     {
         //account for create screen
-        if (!$user->exists) {
+        if (! $user->exists) {
             return $user;
         }
 
@@ -74,14 +72,9 @@ class ReferralService
         return $record;
     }
 
-    /**
-     * @param Model $user
-     * @param string $alias
-     * @return ?Model
-     */
     public function updateSponsor(Model $user, string|int $alias_id): ?Model
     {
-        if ($alias_id === "-") {
+        if ($alias_id === '-') {
             return $this->unHookSponsor($user);
         }
 
@@ -93,11 +86,6 @@ class ReferralService
         return $this->createSponsor($user, $sponsor_alias);
     }
 
-
-    /**
-     * @param Model $referral
-     * @return ?Model
-     */
     public function getSponsor(Model $referral): ?Model
     {
         $sponsor_rec = (new Referral())->query()->IsReferral($referral)->first();
@@ -126,7 +114,7 @@ class ReferralService
     {
         $tracking_record = (new ReferralTracking())->query()->where('ip_address', $request->getClientIp())->first();
 
-        if (!empty($tracking_record)) {
+        if (! empty($tracking_record)) {
             $sponsor = $this->createSponsor(
                 $referral,
                 (new ReferralAlias())
@@ -136,7 +124,7 @@ class ReferralService
                     ->first()
             );
 
-            if (!empty($sponsor)) {
+            if (! empty($sponsor)) {
                 $tracking_record->delete();
 
                 event(new CreatedContentEvent(REFERRAL_MODULE_SCREEN_NAME, $request, $sponsor));
@@ -146,26 +134,26 @@ class ReferralService
 
     public function processSponsorTracking(Request $request): void
     {
-        if (!is_in_admin()) {
+        if (! is_in_admin()) {
             $hasTracking = (new ReferralTracking())
                 ->query()
                 ->where('ip_address', $request->getClientIp())
-                ->where('expires_at', '>=', now())
+                ->where('expires_at', '>=', Carbon::now())
                 ->exists();
 
-            if (!$hasTracking) {
+            if (! $hasTracking) {
                 $alias_record = (new ReferralAlias())
                     ->query()
                     ->where('alias', $request->query($this->getQueryParam()))
                     ->first();
 
-                if (!empty($alias_record)) {
+                if (! empty($alias_record)) {
                     $tracker = (new ReferralTracking())->query()->create([
                         'sponsor_type' => $alias_record->user_type,
-                        'sponsor_id'   => $alias_record->user_id,
-                        'ip_address'   => $request->getClientIp(),
-                        'referer'     => $request->header('referer'),
-                        'expires_at'   => now()->addDays($this->getExpiryDays()),
+                        'sponsor_id' => $alias_record->user_id,
+                        'ip_address' => $request->getClientIp(),
+                        'referer' => $request->header('referer'),
+                        'expires_at' => Carbon::now()->addDays($this->getExpiryDays()),
                     ]);
 
                     event(new CreatedContentEvent(REFERRAL_MODULE_SCREEN_NAME, $request, $tracker));
@@ -194,14 +182,14 @@ class ReferralService
 
     public function addAliasFormMetabox(mixed $priority, mixed $data, string $input = 'referral_alias_wrap'): void
     {
-        if (!empty($data) && is_object($data) && ReferralHookManager::isSupported($data)) {
+        if (! empty($data) && is_object($data) && ReferralHookManager::isSupported($data)) {
             MetaBox::addMetaBox(
                 $input,
                 trans('Alias'),
                 function () use ($input, $data) {
                     $metadata = ($data->exists) ? $data->getAlias() : null;
 
-                    if ($metadata && !empty($metadata)) {
+                    if ($metadata && ! empty($metadata)) {
                         $metadata = $metadata->alias;
                     }
 
@@ -211,15 +199,14 @@ class ReferralService
                     );
                 },
                 get_class($data),
-                'top',
-                'default'
+                'top'
             );
         }
     }
 
     public function addSponsorFormMetabox(mixed $priority, mixed $data, string $input = 'referral_sponsor_wrap'): void
     {
-        if (!empty($data) && is_object($data) && ReferralHookManager::isSupported($data)) {
+        if (! empty($data) && is_object($data) && ReferralHookManager::isSupported($data)) {
             MetaBox::addMetaBox(
                 $input,
                 trans('Sponsor'),
@@ -247,8 +234,7 @@ class ReferralService
                     );
                 },
                 get_class($data),
-                'top',
-                'default'
+                'top'
             );
         }
     }
@@ -257,11 +243,11 @@ class ReferralService
     {
         if (ReferralHookManager::isSupported($object)) {
             try {
-                if ($request->has('referral_alias_wrap') && !empty($request->input('referral_alias_wrap'))) {
+                if ($request->has('referral_alias_wrap') && ! empty($request->input('referral_alias_wrap'))) {
                     $object->updateAlias($request->input('referral_alias_wrap'));
                 }
 
-                if ($request->has('referral_sponsor_wrap') && !empty($request->input('referral_sponsor_wrap'))) {
+                if ($request->has('referral_sponsor_wrap') && ! empty($request->input('referral_sponsor_wrap'))) {
                     $object->updateSponsor($request->input('referral_sponsor_wrap'));
                 }
             } catch (ValidationException $e) {
@@ -279,7 +265,7 @@ class ReferralService
         if ($model instanceof Model && ReferralHookManager::isSupported($model)) {
             $route = $this->getRoutes();
 
-            if (is_in_admin() && Auth::guard()->check() && !Auth::guard()->user()->hasAnyPermission($route)) {
+            if (is_in_admin() && Auth::guard()->check() && ! Auth::guard()->user()->hasAnyPermission($route)) {
                 return $data;
             }
 
@@ -295,12 +281,13 @@ class ReferralService
         return $data;
     }
 
-    public function addAliasHeaderToTable(array $headings, Model|string|null $model)
+    public function addAliasHeaderToTable(array $headings, Model|string|null $model): array
     {
         if ($model instanceof Model && ReferralHookManager::isSupported($model)) {
-            if (is_in_admin() && Auth::guard()->check() && !Auth::guard()->user()->hasAnyPermission($this->getRoutes())) {
+            if (is_in_admin() && Auth::guard()->check() && ! Auth::guard()->user()->hasAnyPermission($this->getRoutes())) {
                 return $headings;
             }
+
             $heading =  [
                 Column::make('alias')
                     ->title(trans('Alias'))
@@ -313,7 +300,7 @@ class ReferralService
                     ->addClass('text-center no-sort')
                     ->orderable(false)
                     ->searchable(false)
-                    ->titleAttr(trans('Sponsor'))
+                    ->titleAttr(trans('Sponsor')),
             ];
 
             return array_merge($headings, $heading);
@@ -353,8 +340,8 @@ class ReferralService
                 Rule::unique((new ReferralAlias())->getTable(), 'alias')->ignore($id),
                 'required',
                 'string',
-                'max:50'
-            ]
+                'max:50',
+            ],
         ];
     }
 
@@ -365,7 +352,7 @@ class ReferralService
         ];
     }
 
-    public function addRulesToSupportedForms(array $rules, BaseRequest $formRequest)
+    public function addRulesToSupportedForms(array $rules, BaseRequest $formRequest): array
     {
 
         $id = $this->resolveRouteResourceKey($formRequest);
@@ -380,7 +367,7 @@ class ReferralService
     protected function resolveRouteResourceKey(BaseRequest $formRequest): int
     {
         $id = 0;
-        if (sizeOf($formRequest->route()->parameters())) {
+        if (sizeof($formRequest->route()->parameters())) {
             $name = $formRequest->route()->parameterNames()[0];
             $params = $formRequest->route()->parameters();
 
@@ -394,7 +381,6 @@ class ReferralService
 
         return $id;
     }
-
 
     protected function getRoutes(): array
     {
@@ -422,10 +408,10 @@ class ReferralService
         if ($this->isMembershipValidated($user, $alias->getReferrals()->count())) {
             $sponsor = (new Referral())->query()->updateOrCreate([
                 'referral_type' => get_class($user),
-                'referral_id'   => $user->id,
+                'referral_id' => $user->id,
             ], [
-                'sponsor_type'  => $alias->user_type,
-                'sponsor_id'    => $alias->user_id,
+                'sponsor_type' => $alias->user_type,
+                'sponsor_id' => $alias->user_id,
             ]);
 
             event(new CreatedContentEvent(REFERRAL_MODULE_SCREEN_NAME, request(), $sponsor));
@@ -463,7 +449,6 @@ class ReferralService
 
     /**
      * @throws Exception
-     * @return void
      */
     private function isMembershipValidated(Model $user, int|string $value): bool
     {
@@ -471,12 +456,14 @@ class ReferralService
             if (defined('ACTION_HOOK_MEMBERSHIP_MODULE_VALIDATION')) {
                 do_action(ACTION_HOOK_MEMBERSHIP_MODULE_VALIDATION, $user, ReferralLimitModule::class, $value);
             }
+
             return true;
-        } catch (MembershipValidationException $exception) {
+        } catch (MembershipValidationException) {
             return false;
         } catch (Exception $exception) {
             BaseHelper::logError($exception);
         }
+
         return true;
     }
 }

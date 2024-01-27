@@ -2,7 +2,6 @@
 
 namespace Skillcraft\Referral\Tables;
 
-use Skillcraft\Referral\Models\Referral;
 use Botble\Table\Abstracts\TableAbstract;
 use Botble\Table\Actions\DeleteAction;
 use Botble\Table\BulkActions\DeleteBulkAction;
@@ -12,6 +11,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\Http\JsonResponse;
+use Skillcraft\Referral\Models\Referral;
 
 class ReferralTable extends TableAbstract
 {
@@ -61,7 +61,7 @@ class ReferralTable extends TableAbstract
         return [
             Column::make('referral_id'),
             Column::make('sponsor_id'),
-            CreatedAtColumn::make()
+            CreatedAtColumn::make(),
         ];
     }
 

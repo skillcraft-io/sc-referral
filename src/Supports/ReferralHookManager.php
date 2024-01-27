@@ -2,11 +2,11 @@
 
 namespace Skillcraft\Referral\Supports;
 
-use Illuminate\Database\Eloquent\Model;
 use Botble\Base\Facades\MacroableModels;
 use Botble\Support\Http\Requests\Request;
-use Skillcraft\Referral\Services\ReferralService;
+use Illuminate\Database\Eloquent\Model;
 use Skillcraft\Core\Abstracts\HookRegistrarAbstract;
+use Skillcraft\Referral\Services\ReferralService;
 
 class ReferralHookManager extends HookRegistrarAbstract
 {
@@ -25,19 +25,19 @@ class ReferralHookManager extends HookRegistrarAbstract
         return 'sc-referral';
     }
 
-    public static function getSupportedKey():string
+    public static function getSupportedKey(): string
     {
         return 'supported';
     }
 
-    public static function getSupportedFormsKey():string
+    public static function getSupportedFormsKey(): string
     {
         return 'supported_forms';
     }
 
-    public static function getSupportedFormsConfigPath():string
+    public static function getSupportedFormsConfigPath(): string
     {
-        return static::getConfigPath().'.'.static::getSupportedFormsKey();
+        return static::getConfigPath() . '.' . static::getSupportedFormsKey();
     }
 
     public static function getSupportedFormHooks(): mixed
@@ -67,7 +67,7 @@ class ReferralHookManager extends HookRegistrarAbstract
         return array_key_exists($form, static::getSupportedFormHooks());
     }
 
-    public static function addMacroHooks():void
+    public static function addMacroHooks(): void
     {
         foreach (self::getSupportedHooks() as $model => $name) {
             MacroableModels::addMacro($model, 'getAlias', function () {
@@ -75,7 +75,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @var Model $this
                  * return Model
                  */
-                return (new ReferralService)->getAlias($this);
+                return (new ReferralService())->getAlias($this);
             });
 
             MacroableModels::addMacro($model, 'updateAlias', function (string $alias) {
@@ -84,7 +84,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @param string $alias
                  * return Model
                  */
-                return (new ReferralService)->updateAlias($this, $alias);
+                return (new ReferralService())->updateAlias($this, $alias);
             });
 
             MacroableModels::addMacro($model, 'updateSponsor', function (string|int $sponsor_id) {
@@ -93,7 +93,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @param int $sponsor_id
                  * return Model
                  */
-                return (new ReferralService)->updateSponsor($this, $sponsor_id);
+                return (new ReferralService())->updateSponsor($this, $sponsor_id);
             });
 
             MacroableModels::addMacro($model, 'unHookSponsor', function () {
@@ -101,7 +101,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @var Model $this
                  * return Model
                  */
-                return (new ReferralService)->unHookSponsor($this);
+                return (new ReferralService())->unHookSponsor($this);
             });
 
             MacroableModels::addMacro($model, 'unHookReferral', function (Model $referral) {
@@ -110,7 +110,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @param Model $referral
                  * return Model
                  */
-                return (new ReferralService)->unHookSponsor($this, $referral);
+                return (new ReferralService())->unHookSponsor($this, $referral);
             });
 
             MacroableModels::addMacro($model, 'unHookAllReferrals', function () {
@@ -118,7 +118,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @var Model $this
                  * return Model
                  */
-                return (new ReferralService)->unHookAllReferrals($this);
+                return (new ReferralService())->unHookAllReferrals($this);
             });
 
             MacroableModels::addMacro($model, 'addMissingAlias', function () {
@@ -126,7 +126,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @var Model $this
                  * return void
                  */
-                (new ReferralService)->addMissingAlias($this);
+                (new ReferralService())->addMissingAlias($this);
             });
 
             MacroableModels::addMacro($model, 'getSponsor', function () {
@@ -134,7 +134,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @var Model $this
                  * return ?Model
                  */
-                return (new ReferralService)->getSponsor($this);
+                return (new ReferralService())->getSponsor($this);
             });
 
             MacroableModels::addMacro($model, 'getReferrals', function () {
@@ -142,7 +142,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @var Model $this
                  * return Collection
                  */
-                return (new ReferralService)->getReferrals($this);
+                return (new ReferralService())->getReferrals($this);
             });
 
             MacroableModels::addMacro($model, 'getReferralLink', function () {
@@ -150,7 +150,7 @@ class ReferralHookManager extends HookRegistrarAbstract
                  * @var Model $this
                  * return string
                  */
-                return (new ReferralService)->getReferralLink($this);
+                return (new ReferralService())->getReferralLink($this);
             });
         }
     }
