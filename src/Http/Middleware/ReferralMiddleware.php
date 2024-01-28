@@ -10,7 +10,7 @@ use Throwable;
 
 class ReferralMiddleware
 {
-    public function handle(Request $request, Closure $next, string ...$guards)
+     public function handle(Request $request, Closure $next, string ...$guards)
     {
         $guards = empty($guards) ? [null] : $guards;
 

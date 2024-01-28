@@ -2,22 +2,21 @@
 
 namespace Skillcraft\Referral\Providers;
 
+use Botble\Member\Models\Member;
 use Botble\Base\Facades\DashboardMenu;
+use Botble\Base\Supports\ServiceProvider;
+use Illuminate\Routing\Events\RouteMatched;
 use Botble\Base\Facades\PanelSectionManager;
 use Botble\Base\PanelSections\PanelSectionItem;
-use Botble\Base\Supports\ServiceProvider;
 use Botble\Base\Traits\LoadAndPublishDataTrait;
 use Botble\Member\Http\Requests\MemberEditRequest;
-use Botble\Member\Models\Member;
-use Illuminate\Routing\Events\RouteMatched;
 use Skillcraft\Core\PanelSections\CorePanelSection;
-use Skillcraft\Referral\Http\Middleware\ReferralMiddleware;
 use Skillcraft\Referral\Supports\ReferralHookManager;
+use Skillcraft\Referral\Http\Middleware\ReferralMiddleware;
 
 class ReferralServiceProvider extends ServiceProvider
 {
     use LoadAndPublishDataTrait;
-
     public function register(): void
     {
         $events = $this->app['events'];
@@ -30,7 +29,7 @@ class ReferralServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (! is_plugin_active('sc-core')) {
+        if (!is_plugin_active('sc-core')) {
             return;
         }
 
@@ -57,13 +56,15 @@ class ReferralServiceProvider extends ServiceProvider
             );
         });
 
-        if (is_plugin_active('member') && config('plugins.sc-referral.general.enable_member_default')) {
-            ReferralHookManager::registerHooks(Member::class, 'member');
-            ReferralHookManager::registerFormHooks(MemberEditRequest::class, 'member');
+        if (is_plugin_active('member')) {
+            if (config('plugins.sc-referral.general.enable_member_default')) {
+                ReferralHookManager::registerHooks(Member::class, 'member');
+                ReferralHookManager::registerFormHooks(MemberEditRequest::class, 'member');
+            }
         }
 
         $this->app->booted(function () {
-            $this->app->register(HookServiceProvider::class);
+            (new ReferralHookManager())->load();
 
             if (is_plugin_active('member')) {
                 if (ReferralHookManager::isSupported(Member::class)) {
