@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ReferralMiddleware
 {
-     public function handle(Request $request, Closure $next, string ...$guards)
+    public function handle(Request $request, Closure $next, string ...$guards)
     {
         $guards = empty($guards) ? [null] : $guards;
 
@@ -26,5 +26,4 @@ class ReferralMiddleware
 
         return $next($request);
     }
-   
 }

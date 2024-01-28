@@ -9,7 +9,6 @@ use Illuminate\Routing\Events\RouteMatched;
 use Botble\Base\Facades\PanelSectionManager;
 use Botble\Base\PanelSections\PanelSectionItem;
 use Botble\Base\Traits\LoadAndPublishDataTrait;
-use Botble\Member\Http\Requests\SettingRequest;
 use Botble\Member\Http\Requests\MemberEditRequest;
 use Skillcraft\Core\PanelSections\CorePanelSection;
 use Skillcraft\Referral\Supports\ReferralHookManager;
@@ -18,7 +17,7 @@ use Skillcraft\Referral\Http\Middleware\ReferralMiddleware;
 class ReferralServiceProvider extends ServiceProvider
 {
     use LoadAndPublishDataTrait;
-    public function register()
+    public function register(): void
     {
         $events = $this->app['events'];
 
@@ -41,7 +40,7 @@ class ReferralServiceProvider extends ServiceProvider
             ->loadMigrations()
             ->loadAndPublishTranslations()
             ->loadAndPublishViews()
-            ->loadRoutes(['web']);
+            ->loadRoutes();
 
         PanelSectionManager::default()->beforeRendering(function () {
             PanelSectionManager::registerItem(
@@ -65,7 +64,8 @@ class ReferralServiceProvider extends ServiceProvider
         }
 
         $this->app->booted(function () {
-            $this->app->register(HookServiceProvider::class);
+            (new ReferralHookManager())->load();
+
             if (is_plugin_active('member')) {
                 if (ReferralHookManager::isSupported(Member::class)) {
                     $this->loadRoutes(['member']);
