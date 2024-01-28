@@ -12,6 +12,7 @@ use Botble\Base\PanelSections\PanelSectionItem;
 use Botble\Base\Traits\LoadAndPublishDataTrait;
 use Botble\Member\Http\Requests\MemberEditRequest;
 use Skillcraft\Core\PanelSections\CorePanelSection;
+use Skillcraft\Core\Traits\FillableValidation;
 use Skillcraft\Referral\Services\ReferralService;
 use Skillcraft\Referral\Supports\ReferralHookManager;
 use Skillcraft\Referral\Http\Middleware\ReferralMiddleware;
@@ -31,7 +32,7 @@ class ReferralServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        if (!is_plugin_active('sc-core')) {
+        if (!is_plugin_active('sc-core') || !trait_exists(FillableValidation::class)) {
             return;
         }
 
