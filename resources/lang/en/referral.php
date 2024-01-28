@@ -9,5 +9,15 @@ return [
     'tables' => [
         'referral' => 'Referral',
         'sponsor' => 'Sponsor',
+    ],
+    'settings' => [
+        'title' => 'Referral Settings',
+        'description' => 'Adjust referral plugin system settings',
+        'expire_days' => 'Tracking Expiry Days',
+        'alias_length' => 'Default Alias Length',
+        'ref_levels' => 'Referral Levels',
+        'enable_member_default' => 'Enable Member Plugin (must be installed and active)',
+        'query_param' => 'Referral Query Parameter'
+
     ]
 ];

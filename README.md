@@ -1,15 +1,18 @@
 # Referral Plugin for Botble CMS
 
-Easily add a single level referral system to Botble CMS. This powerful plugin will enable your users to refer new users to your system Compatible with any model.
+Now with upto UNLIMITED LEVELS!
+
+Easily add a multi-level referral system to Botble CMS. This powerful plugin will enable your users to refer new users to your system Compatible with any model.
 
 ## 🧐 Features
 
-Here're some of the project's best features:
+Here are some of the project's best features:
 
 *   Unlimited Referrals
+*   Unlimited Referral Levels
 *   Supports Any User Model
 *   Custom Referral Aliases
-*   Manually assign sponors
+*   Manually assign sponsors
 *   Edit/Update Aliases
 *   Cookieless Tracking
 *   Customizable Query Parameter
@@ -19,7 +22,7 @@ Here're some of the project's best features:
 ## Requirements
 
 - Botble core 7.0.0 or higher.
-- Skillcraft Core (sc-core) v2.0.0 or higher
+- Skillcraft Core (sc-core) v2.1.0 or higher
 
 ## Installation
 
@@ -54,12 +57,10 @@ Here're some of the project's best features:
 ```php
 if (defined('REFERRAL_MODULE_SCREEN_NAME')) {
     ReferralHookManager::registerHooks(YourUserModel::class, 'name');
-    ReferralHookManager::registerFormHooks(YourUserModelsEditFormRequest::class, 'name');
+    ReferralHookManager::registerFormHooks(YourUserModelsFormRequest::class, 'name');
 }
 ```
-A form request is registered to apply the rules to the added alias and sponsor metaboxes added to your supported user model. 
-
-Note that - By default a alias form is NOT shown on a create screen. However a default alias will be created.
+A form request is registered to apply the rules to the added alias and sponsor meta boxes added to your supported user model. 
 
 
 ## Available Model Macros
@@ -130,6 +131,16 @@ $yourUserModel->getReferrals();
  * return string
  */
 $yourUserModel->getReferralLink();
+
+/**
+ * Get the X level of referrals
+ * 
+ * @param Model $this The sponsor model
+ * @param int $level The level of referrals
+ * @return Collection
+ */
+$yourUserModel->getSubLevelReferrals(int $level = 1);
+
 ```
 
 ### Supported Botble Plugins
@@ -141,6 +152,13 @@ Feel free to request official plugin support by reaching out to me or posting an
 - Skillcraft Account - v1.0.0+
 - Members v2.0.0+
 
+## Running Tests
+
+Before running tests locally, you may have to run to resolve plugins testing namespace properly.
+
+```
+composer dump-autoload
+```
 
 ### Changelog
 

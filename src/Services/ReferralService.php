@@ -142,7 +142,7 @@ class ReferralService
      */
     public function addMissingAlias(Model $user): void
     {
-        if ((new ReferralAlias())->HasUser($user)->exists()) {
+        if (!(new ReferralAlias())->HasUser($user)->exists()) {
             $alias = $this->createAlias($user);
             event(new CreatedContentEvent(REFERRAL_MODULE_SCREEN_NAME, request(), $alias));
         }
@@ -154,7 +154,9 @@ class ReferralService
      * @param Request $request The request object
      * @param Model $referral The referral model
      * @return void
-     **/
+     *
+     * @throws Exception
+     */
     public function processSponsorCheck(Request $request, Model $referral): void
     {
         $tracking_record = $this->getTrackingRecord($request);
@@ -277,9 +279,9 @@ class ReferralService
      *
      * @param Model $sponsor The sponsor model
      * @param int $level The level of referrals
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
-    public function getSubLevelReferrals(Model $sponsor, int $level = 1): Collection
+    public function getSubLevelReferrals(Model $sponsor, int $level = 1): \Illuminate\Support\Collection
     {
         $referrals = $this->getReferrals($sponsor);
 
@@ -374,7 +376,7 @@ class ReferralService
      *
      * @return string The query parameter value.
      */
-    private function getQueryParam(): string
+    public function getQueryParam(): string
     {
         return setting('sc_referral_query_param', config('plugins.sc-referral.general.query_param'));
     }
@@ -384,7 +386,7 @@ class ReferralService
      *
      * @return string The expiry days for the referral alias
      */
-    private function getExpiryDays(): string
+    public function getExpiryDays(): string
     {
         return setting('sc_referral_expire_days', config('plugins.sc-referral.general.expire_days'));
     }
@@ -394,9 +396,19 @@ class ReferralService
      *
      * @return string The length of the alias for referral
      */
-    private function getAliasLength(): string
+    public function getAliasLength(): string
     {
         return setting('sc_referral_alias_length', config('plugins.sc-referral.general.alias_length'));
+    }
+
+    public function getReferralLevels(): string
+    {
+        return setting('sc_referral_ref_levels', config('plugins.sc-referral.general.ref_levels'));
+    }
+
+    public function isMemberPluginEnabled(): string
+    {
+        return setting('sc_referral_enable_member_default', config('plugins.sc-referral.general.enable_member_default'));
     }
 
     /**

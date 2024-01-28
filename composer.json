@@ -1,0 +1,9 @@
+{
+    "name": "skillcraft/sc-referral",
+    "description": "Add referrals to your project",
+    "autoload": {
+        "psr-4": {
+            "Skillcraft\\Referral\\Tests\\": "tests/"
+        }
+    }
+}

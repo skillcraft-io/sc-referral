@@ -223,6 +223,14 @@ class ReferralHookManager extends HookRegistrarAbstract
                  */
                 return (new ReferralService)->getReferralLink($this);
             });
+
+            MacroableModels::addMacro($model, 'getSubLevelReferrals', function (int $level = 1) {
+                /**
+                 * @var Model $this
+                 * return Collection
+                 */
+                return (new ReferralService)->getSubLevelReferrals($this, $level);
+            });
         }
     }
 
@@ -254,6 +262,16 @@ class ReferralHookManager extends HookRegistrarAbstract
         app()['events']->listen(RenderingDashboardWidgets::class, function () {
             add_filter(DASHBOARD_FILTER_ADMIN_LIST, [DashboardWidgets::class, 'registerLatestReferralWidget'], 21, 2);
         });
+
+        add_filter(THEME_FRONT_FOOTER, function (string|null $html) {
+            if(is_plugin_active('member')
+                && (new ReferralService())->isMemberPluginEnabled()
+                && (new ReferralService())->getReferralLevels() > 1
+            ) {
+                $html = $html.view('plugins/sc-referral::member.table.actions.header-action-script')->render();
+            }
+            return $html;
+        }, 3000, 1);
     }
 
 

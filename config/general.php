@@ -7,4 +7,5 @@ return [
     'query_param' => env('SKILLCRAFT_REFERRAL_QUERY_PARAM', 'ref'),
     'alias_length' => env('SKILLCRAFT_REFERRAL_DEFAULT_ALIAS_LENGTH', 8),
     'enable_member_default' => env('SKILLCRAFT_REFERRAL_ENABLE_MEMBER_DEFAULT', true),
+    'ref_levels' => env('SKILLCRAFT_REFERRAL_LEVELS', 1)
 ];
